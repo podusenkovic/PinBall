@@ -17,7 +17,8 @@ class MainWindow : public QMainWindow
 public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
-
+    void mousePressEvent(QMouseEvent *event = 0) override;
+    void mouseReleaseEvent(QMouseEvent *event = 0) override;
 private:
     Ui::MainWindow *ui;
     Helper helper;

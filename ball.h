@@ -113,8 +113,8 @@ public:
         double d = abs((y2 - y1)*x0 - (x2 - x1)*y0 + x2*y1 - y2*x1)
                 / sqrt((y2 - y1)*(y2 - y1) + (x2 - x1)*(x2 - x1));
         
-        if ((d < radius) 
-                && (coord.x() > x1 - radius)
+        if ((d < radius))
+            if(    (coord.x() > x1 - radius)
                 && (coord.x() < x2 + radius)
                 && (coord.y() > y1 - radius)
                 && (coord.y() < y2 + radius)){

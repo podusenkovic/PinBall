@@ -4,7 +4,12 @@
 #include <QPaintEvent>
 #include <QWidget>
 
+extern QPoint startPoint;
+extern QPoint startSpeed;
+extern bool mReleased;
 extern QSize winSize;
+
+bool needDraw = false;
 
 Helper::Helper()
 {
@@ -19,9 +24,8 @@ Helper::Helper()
     textPen = QPen(Qt::white);
     textFont.setPixelSize(50);
     
+    wall = new Wall(QPoint(150,150), QPoint(500,390));        
     
-    ball = new Ball(QPoint(100,50), 20, QPoint(10,6), QPoint(0,0));
-    wall = new Wall(QPoint(100,300), QPoint(500,300));
 }
 
 
@@ -33,12 +37,18 @@ void Helper::paint(QPainter *painter, QPaintEvent *event, int elapsed)
     painter->setBrush(circleBrush);
     painter->setPen(QPen(Qt::black,1));
 
-    qreal r = elapsed / 1000.0;
-    ball->updateCoord();
-    ball->updateSpeed();
-    ball->checkBounds(wall->line());
-    painter->drawEllipse(ball->rect());
     
+    if(mReleased){
+        mReleased = false;
+        needDraw = true;                
+        ball = new Ball(startPoint, 20, startSpeed, QPoint(0,0));
+    }
+    if(needDraw){
+        ball->updateCoord();
+        ball->updateSpeed();
+        ball->checkBounds(wall->line());
+        painter->drawEllipse(ball->rect());
+    }
     painter->setPen(QPen(Qt::yellow,3));
     painter->drawLine(wall->line());
     
