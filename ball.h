@@ -6,8 +6,7 @@
 #include <QPoint>
 #include <QRect>
 #include <QLine>
-//#define max(a,b) (a>b) ? a : b
-//#define min(a,b) (a<b) ? a : b
+
 
 static double max(double a, double b){
     if (a > b) 
@@ -115,10 +114,10 @@ public:
                 / sqrt((y2 - y1)*(y2 - y1) + (x2 - x1)*(x2 - x1));
         
         if ((d < radius) 
-                && (coord.x() > x1)
-                && (coord.x() < x2)
-                && (coord.y() > y1)
-                && (coord.y() < y2)){
+                && (coord.x() > x1 - radius)
+                && (coord.x() < x2 + radius)
+                && (coord.y() > y1 - radius)
+                && (coord.y() < y2 + radius)){
             
             QPoint norma = QPoint(y1 - y2, x2 - x1);
             double NormAndSpeed = (speed.x()*norma.x() + speed.y()*norma.y());

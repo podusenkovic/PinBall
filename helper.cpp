@@ -20,20 +20,18 @@ Helper::Helper()
     textFont.setPixelSize(50);
     
     
-    ball = new Ball(QPoint(100,50), 20, QPoint(6,10), QPoint(0,0));
-    wall = new Wall(QPoint(100,300), QPoint(430,450));
+    ball = new Ball(QPoint(100,50), 20, QPoint(10,6), QPoint(0,0));
+    wall = new Wall(QPoint(100,300), QPoint(500,300));
 }
 
 
 void Helper::paint(QPainter *painter, QPaintEvent *event, int elapsed)
 {
     painter->fillRect(event->rect(), background);
-    //painter->translate(100, 100);
 
     painter->save();
     painter->setBrush(circleBrush);
     painter->setPen(QPen(Qt::black,1));
-    //painter->rotate(elapsed * 0.030);
 
     qreal r = elapsed / 1000.0;
     ball->updateCoord();
@@ -48,5 +46,4 @@ void Helper::paint(QPainter *painter, QPaintEvent *event, int elapsed)
 
     painter->setPen(textPen);
     painter->setFont(textFont);
-    //painter->drawText(QRect(-50, -50, 100, 100), Qt::AlignCenter, QStringLiteral("Qt"));
 }
