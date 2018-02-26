@@ -3,6 +3,9 @@
 #include <QPainter>
 #include <QPaintEvent>
 #include <QWidget>
+#include <time.h>
+
+#define numWall 3
 
 extern QPoint startPoint;
 extern QPoint startSpeed;
@@ -13,6 +16,7 @@ bool needDraw = false;
 
 Helper::Helper()
 {
+    srand(time(NULL));
     QLinearGradient gradient(QPointF(50, -20), QPointF(80, 20));
     gradient.setColorAt(0.0, Qt::white);
     gradient.setColorAt(1.0, QColor(0xa6, 0xce, 0x39));
@@ -24,7 +28,12 @@ Helper::Helper()
     textPen = QPen(Qt::white);
     textFont.setPixelSize(50);
     
-    wall = new Wall(QPoint(150,150), QPoint(500,390));        
+    wall = new Wall[numWall];
+    for(int i = 0; i < numWall; i++)
+        wall[i] = Wall(QPoint(rand() % (winSize.width() - 100) + 50,
+                              rand() % (winSize.height() - 100) + 50),
+                       QPoint(rand() % (winSize.width() - 100) + 50,
+                              rand() % (winSize.height() - 100) + 50));
     
 }
 
@@ -36,7 +45,7 @@ void Helper::paint(QPainter *painter, QPaintEvent *event, int elapsed)
     painter->save();
     painter->setBrush(circleBrush);
     painter->setPen(QPen(Qt::black,1));
-
+    painter->setFont(textFont);
     
     if(mReleased){
         mReleased = false;
@@ -44,13 +53,20 @@ void Helper::paint(QPainter *painter, QPaintEvent *event, int elapsed)
         ball = new Ball(startPoint, 20, startSpeed, QPoint(0,0));
     }
     if(needDraw){
+        
+        painter->drawText(event->rect(),
+                          QString::number(ball->getSpeed().x()));        
+        
         ball->updateCoord();
         ball->updateSpeed();
-        ball->checkBounds(wall->line());
+        for(int i = 0; i < numWall; i++)
+            ball->checkBounds(wall[i].line());
+        
         painter->drawEllipse(ball->rect());
     }
     painter->setPen(QPen(Qt::yellow,3));
-    painter->drawLine(wall->line());
+    for(int i = 0; i < numWall; i++)
+        painter->drawLine(wall[i].line());
     
     painter->restore();
 

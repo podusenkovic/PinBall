@@ -10,7 +10,7 @@ class Wall
     QPoint p1,p2;
     QPoint center;
 public:
-    Wall(QPoint p1, QPoint p2){
+    Wall(QPoint p1 = QPoint(0,0), QPoint p2 = QPoint(0,0)){
         this->p1 = p1;
         this->p2 = p2;
         center = (p1 + p2) / 2;

@@ -25,7 +25,7 @@ MainWindow::MainWindow(QWidget *parent) :
     setLayout(layout);
     QTimer *timer = new QTimer(this);
     connect(timer, SIGNAL(timeout()), drawPlace, SLOT(animate()));
-    timer->start(5);    
+    timer->start(10);    
     ui->setupUi(this);
     
 }
