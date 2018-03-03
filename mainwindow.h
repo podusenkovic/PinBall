@@ -19,6 +19,7 @@ public:
     ~MainWindow();
     void mousePressEvent(QMouseEvent *event = 0) override;
     void mouseReleaseEvent(QMouseEvent *event = 0) override;
+    void keyPressEvent(QKeyEvent *event) override;
 private:
     Ui::MainWindow *ui;
     Helper helper;

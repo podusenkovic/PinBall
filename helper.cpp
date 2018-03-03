@@ -11,18 +11,16 @@ extern QPoint startPoint;
 extern QPoint startSpeed;
 extern bool mReleased;
 extern QSize winSize;
+extern bool PawsMoving;
 
 bool needDraw = false;
 
 Helper::Helper()
 {
     srand(time(NULL));
-    QLinearGradient gradient(QPointF(50, -20), QPointF(80, 20));
-    gradient.setColorAt(0.0, Qt::white);
-    gradient.setColorAt(1.0, QColor(0xa6, 0xce, 0x39));
 
     background = QBrush(QColor(64, 32, 64));
-    circleBrush = QBrush(gradient);
+    circleBrush = QBrush(Qt::green);
     circlePen = QPen(Qt::yellow, 3);
     circlePen.setWidth(3);
     textPen = QPen(Qt::white);
@@ -34,6 +32,12 @@ Helper::Helper()
                               rand() % (winSize.height() - 100) + 50),
                        QPoint(rand() % (winSize.width() - 100) + 50,
                               rand() % (winSize.height() - 100) + 50));
+    
+    paws = new Wall[2];
+    paws[0] = Wall(QPoint(50,  winSize.height() - 50), 
+                   QPoint(200, winSize.height() - 50));
+    paws[1] = Wall(QPoint(250, winSize.height() - 50), 
+                   QPoint(400, winSize.height() - 50));
     
 }
 
@@ -50,23 +54,31 @@ void Helper::paint(QPainter *painter, QPaintEvent *event, int elapsed)
     if(mReleased){
         mReleased = false;
         needDraw = true;                
-        ball = new Ball(startPoint, 20, startSpeed, QPoint(0,0));
+        ball = new Ball(startPoint, 20, startSpeed, QPoint(0,1));
     }
-    if(needDraw){
-        
-        painter->drawText(event->rect(),
-                          QString::number(ball->getSpeed().x()));        
-        
+    if(needDraw){      
+        ball->updateAccel();
         ball->updateCoord();
         ball->updateSpeed();
         for(int i = 0; i < numWall; i++)
             ball->checkBounds(wall[i].line());
-        
+        for(int i = 0; i < 2; i++)
+            ball->checkBounds(paws[i].line());
         painter->drawEllipse(ball->rect());
     }
     painter->setPen(QPen(Qt::yellow,3));
     for(int i = 0; i < numWall; i++)
         painter->drawLine(wall[i].line());
+    
+    for(int i = 0; i < 2; i++)
+        painter->drawLine(paws[i].line());
+    
+    if(PawsMoving){
+        //bool a = paws[0].moveLines('l');
+        //bool b = paws[1].moveLines('r');
+        if(!moveblyat(&paws[0], &paws[1]))
+            PawsMoving = false;       
+    }
     
     painter->restore();
 

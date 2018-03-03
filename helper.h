@@ -24,6 +24,7 @@ private:
     QPen textPen;
     Ball *ball;
     Wall *wall;
+    Wall *paws;
 };
 
 #endif

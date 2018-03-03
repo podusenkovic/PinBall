@@ -12,6 +12,7 @@ QSize winSize = QSize(1000,700);
 QPoint startPoint;
 QPoint startSpeed;
 bool mReleased = false;
+bool PawsMoving = false;
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -25,7 +26,7 @@ MainWindow::MainWindow(QWidget *parent) :
     setLayout(layout);
     QTimer *timer = new QTimer(this);
     connect(timer, SIGNAL(timeout()), drawPlace, SLOT(animate()));
-    timer->start(10);    
+    timer->start(15);    
     ui->setupUi(this);
     
 }
@@ -43,4 +44,10 @@ void MainWindow::mousePressEvent(QMouseEvent *event){
 void MainWindow::mouseReleaseEvent(QMouseEvent *event){
     mReleased = true;
     startSpeed = (startPoint - event->pos())/10;
+}
+
+
+void MainWindow::keyPressEvent(QKeyEvent *event){
+    if (event->key() == Qt::Key_Space)
+        PawsMoving = true;
 }
