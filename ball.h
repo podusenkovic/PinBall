@@ -6,6 +6,7 @@
 #include <QPoint>
 #include <QRect>
 #include <QLine>
+#include <QDebug>
 
 
 static double max(double a, double b){
@@ -84,31 +85,40 @@ public:
     }
     
     void updateAccel(){
-        if(abs(speed.y()) < 1 && coord.y() + radius > winSize.height())
-            accel = QPoint(accel.x(), 0);
+        if(abs(speed.y()) <= 3 && coord.y() + radius >= winSize.height()){
+            accel.setY(0);
+            speed.setY(0);
+        }
     }
+    
     void updateSpeed(){
         if (speed.y() == 0 && coord.y() + radius >= winSize.height()){
             accel.setX(-speed.x()/5);
+        }
+        if(abs(speed.y()) <= 9 && coord.y() + radius >= winSize.height()){
+            qDebug() << speed.y();   
+            speed.setY(0);
         }
         speed += accel;
     }
     
     void updateCoord(){
-        coord += speed;
         this->checkBounds();
+        coord += speed;
         //coord = QPoint((coord.x() + speed.x()),
         //               (coord.y() + speed.y()));
     }
     
     void checkBounds(){
         if (coord.x() + radius >= winSize.width() || coord.x() - radius <= 0){
+            coord.setX((coord.x() + radius >= winSize.width()) ? coord.x() - speed.x() : coord.x() - speed.x());
             speed.setX(speed.x()*(-0.9));
             accel.setX(accel.x()*(-0.9));
             //return;
         }
         if (coord.y() + radius >= winSize.height() || coord.y() - radius <= 0){
-            speed.setY(speed.y()*(-0.9));
+            coord.setY((coord.y() + radius >= winSize.height()) ? coord.y() - speed.y() : coord.y() - speed.y());            
+            speed.setY(speed.y()*(-0.8));
             //accel.setY(accel.y()*(-1));
             //return;
         }
@@ -141,8 +151,10 @@ public:
             QPoint norma = QPoint(y1 - y2, x2 - x1);
             double NormAndSpeed = (speed.x()*norma.x() + speed.y()*norma.y());
             QPoint newSpeed = speed - 2 * norma * (NormAndSpeed/(Abs(norma)*Abs(norma)));
-            
-            speed = newSpeed * 0.9;
+            if (d < radius / 2)
+                speed = -speed;
+            else speed = newSpeed * 0.9;
+            coord += speed;
             
         }
     }

@@ -19,8 +19,8 @@ Helper::Helper()
 {
     srand(time(NULL));
 
-    background = QBrush(QColor(64, 32, 64));
-    circleBrush = QBrush(Qt::green);
+    background = QBrush(QColor(253, 83, 52));
+    circleBrush = QBrush(QColor(49, 110, 115));
     circlePen = QPen(Qt::yellow, 3);
     circlePen.setWidth(3);
     textPen = QPen(Qt::white);
@@ -66,7 +66,7 @@ void Helper::paint(QPainter *painter, QPaintEvent *event, int elapsed)
             ball->checkBounds(paws[i].line());
         painter->drawEllipse(ball->rect());
     }
-    painter->setPen(QPen(Qt::yellow,3));
+    painter->setPen(QPen(QColor(59, 66, 76),4));
     for(int i = 0; i < numWall; i++)
         painter->drawLine(wall[i].line());
     
