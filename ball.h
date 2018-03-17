@@ -96,7 +96,6 @@ public:
             accel.setX(-speed.x()/5);
         }
         if(abs(speed.y()) <= 9 && coord.y() + radius >= winSize.height()){
-            qDebug() << speed.y();   
             speed.setY(0);
         }
         speed += accel;
@@ -151,7 +150,10 @@ public:
             QPoint norma = QPoint(y1 - y2, x2 - x1);
             double NormAndSpeed = (speed.x()*norma.x() + speed.y()*norma.y());
             QPoint newSpeed = speed - 2 * norma * (NormAndSpeed/(Abs(norma)*Abs(norma)));
-            if (d < radius / 2)
+            if ((abs(coord.x() - line.p1().x()) <= radius / 2 &&
+                 abs(coord.y() - line.p1().y()) <= radius / 2) ||
+                (abs(coord.x() - line.p2().x()) <= radius / 2 &&
+                 abs(coord.y() - line.p2().y()) <= radius / 2))
                 speed = -speed;
             else speed = newSpeed * 0.9;
             coord += speed;

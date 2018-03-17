@@ -1,23 +1,27 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
-#include "widget.h"
-
 #include <QGridLayout>
 #include <QTimer>
 #include <QMouseEvent>
+#include <QtNetwork>
+#include <QDebug>
+#include <QVector>
 
 QSize winSize = QSize(1000,700);
 
-QPoint startPoint;
+QPoint startPoint;  
 QPoint startSpeed;
 bool mReleased = false;
 bool PawsMoving = false;
 
+
 MainWindow::MainWindow(QWidget *parent) :
-    QMainWindow(parent),
-    ui(new Ui::MainWindow)
+    QMainWindow(parent)
 {
+    client = new Client;
+    client->show();
+    
     this->move(100,10);
     Widget *drawPlace = new Widget(&helper, this);
     setFixedSize(winSize);
@@ -26,14 +30,14 @@ MainWindow::MainWindow(QWidget *parent) :
     setLayout(layout);
     QTimer *timer = new QTimer(this);
     connect(timer, SIGNAL(timeout()), drawPlace, SLOT(animate()));
-    timer->start(15);    
-    ui->setupUi(this);
-    
+    timer->start(15);
+   
+    connect(client, SIGNAL(got_wall()), this, SLOT(initWalls()));        
 }
 
 MainWindow::~MainWindow()
 {
-    delete ui;
+    
 }
 
 
@@ -50,4 +54,13 @@ void MainWindow::mouseReleaseEvent(QMouseEvent *event){
 void MainWindow::keyPressEvent(QKeyEvent *event){
     if (event->key() == Qt::Key_Space)
         PawsMoving = true;
+}
+
+void MainWindow::initWalls(){
+    
+    //QTimer::singleShot(100, client, SLOT(sendBall(Ball())));
+    client->close();
+    
+    QVector<QString> w = client->throwWalls();
+    helper.setWalls(w);
 }

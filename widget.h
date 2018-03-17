@@ -2,6 +2,7 @@
 #define WIDGET_H
 
 #include <QWidget>
+#include <QPainter>
 
 class Helper;
 
@@ -9,15 +10,15 @@ class Widget : public QWidget
 {
     Q_OBJECT
 public:
-    Widget(Helper* helper, QWidget *parent);
+    Widget(Helper *w, QWidget *parent);
 
 signals:
 
 public slots:
    void animate();
 
-protected:
-   void paintEvent(QPaintEvent *event) override;
+public:
+   void paintEvent(QPaintEvent *event = nullptr);
 
 private:
     Helper *helper;

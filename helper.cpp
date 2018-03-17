@@ -4,8 +4,8 @@
 #include <QPaintEvent>
 #include <QWidget>
 #include <time.h>
+#include <QDebug>
 
-#define numWall 3
 
 extern QPoint startPoint;
 extern QPoint startSpeed;
@@ -26,13 +26,12 @@ Helper::Helper()
     textPen = QPen(Qt::white);
     textFont.setPixelSize(50);
     
-    wall = new Wall[numWall];
-    for(int i = 0; i < numWall; i++)
-        wall[i] = Wall(QPoint(rand() % (winSize.width() - 100) + 50,
-                              rand() % (winSize.height() - 100) + 50),
-                       QPoint(rand() % (winSize.width() - 100) + 50,
-                              rand() % (winSize.height() - 100) + 50));
-    
+      
+   /*wall[i] = Wall(QPoint(rand() % (winSize.width() - 100) + 50,
+                           rand() % (winSize.height() - 100) + 50),
+                    QPoint(rand() % (winSize.width() - 100) + 50,
+                           rand() % (winSize.height() - 100) + 50));*/
+
     paws = new Wall[2];
     paws[0] = Wall(QPoint(50,  winSize.height() - 50), 
                    QPoint(200, winSize.height() - 50));
@@ -44,7 +43,7 @@ Helper::Helper()
 
 void Helper::paint(QPainter *painter, QPaintEvent *event, int elapsed)
 {
-    painter->fillRect(event->rect(), background);
+    painter->fillRect(QRect(QPoint(), winSize), background);
 
     painter->save();
     painter->setBrush(circleBrush);
@@ -60,16 +59,19 @@ void Helper::paint(QPainter *painter, QPaintEvent *event, int elapsed)
         ball->updateAccel();
         ball->updateCoord();
         ball->updateSpeed();
-        for(int i = 0; i < numWall; i++)
-            ball->checkBounds(wall[i].line());
+        if(wall != nullptr){
+            for(int i = 0; i < numWall; i++)
+                ball->checkBounds(wall[i].line());
+        }
         for(int i = 0; i < 2; i++)
             ball->checkBounds(paws[i].line());
         painter->drawEllipse(ball->rect());
     }
     painter->setPen(QPen(QColor(59, 66, 76),4));
-    for(int i = 0; i < numWall; i++)
-        painter->drawLine(wall[i].line());
-    
+    if(wall != nullptr){
+        for(int i = 0; i < numWall; i++)
+            painter->drawLine(wall[i].line());
+    }
     for(int i = 0; i < 2; i++)
         painter->drawLine(paws[i].line());
     
@@ -84,4 +86,16 @@ void Helper::paint(QPainter *painter, QPaintEvent *event, int elapsed)
 
     painter->setPen(textPen);
     painter->setFont(textFont);
+}
+
+void Helper::setWalls(QVector<QString> walls){
+    numWall = walls.size();
+    wall = new Wall[numWall];
+    for(int i = 0; i < numWall; i++){
+        QStringList wallCoord = walls[i].split(QChar('.'));
+        wall[i] = Wall(QPoint(wallCoord[0].toInt(),
+                              wallCoord[1].toInt()),
+                       QPoint(wallCoord[2].toInt(),
+                              wallCoord[3].toInt()));
+    }
 }

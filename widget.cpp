@@ -3,11 +3,14 @@
 
 #include <QPainter>
 #include <QTimer>
+#include <QtGui>
+#include <QtCore>
 
 extern QSize winSize;
 
-Widget::Widget(Helper *helper, QWidget *parent) :
-    QWidget(parent), helper(helper)
+Widget::Widget(Helper* _helper, QWidget *parent) :
+    QWidget(parent),
+    helper(_helper)
 {
     elapsed = 0;
     setFixedSize(winSize);
@@ -20,9 +23,8 @@ void Widget::animate(){
 
 
 void Widget::paintEvent(QPaintEvent *event){
-    QPainter painter;
-    painter.begin(this);
+    QPainter painter(this);
     painter.setRenderHint(QPainter::Antialiasing);
     helper->paint(&painter, event, elapsed);
-    painter.end();
 }
+

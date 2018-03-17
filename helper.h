@@ -15,16 +15,17 @@ public:
 
 public:
     void paint(QPainter *painter, QPaintEvent *event, int elapsed);
-
+    void setWalls(QVector<QString> wall);
 private:
     QBrush background;
     QBrush circleBrush;
     QFont textFont;
     QPen circlePen;
     QPen textPen;
-    Ball *ball;
-    Wall *wall;
+    Ball *ball = nullptr;
+    Wall *wall = nullptr;
     Wall *paws;
+    int numWall;
 };
 
 #endif
