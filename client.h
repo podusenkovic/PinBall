@@ -14,6 +14,7 @@
 #include <QDialogButtonBox>
 #include <QNetworkConfigurationManager>
 #include <QVector>
+#include <QTcpServer>
 
 #include "ball.h"
 
@@ -23,11 +24,21 @@ class Client : public QDialog
 public:
     explicit Client(QWidget *parent = nullptr);
     
+    void setBall(Ball b){
+        this->b = b;
+    }
+    
     QVector<QString> throwWalls();
-    void sendBall(Ball);
+    
+    QString getNewBall(){
+        return newBall;
+    }
 signals:
     void got_ball();
     void got_wall();
+    
+public slots:
+    void sendBall();
     
 private slots:
     void requestWalls();
@@ -37,7 +48,9 @@ private slots:
     void sessionOpened();
     void transWall();
     void transBall();
-    
+    void readBall();
+    void finalReadBall();
+    //void sendIP();
 private:
     QComboBox *hostCombo = nullptr;
     QLineEdit *portLineEdit = nullptr;
@@ -45,13 +58,16 @@ private:
     QPushButton *getWallsButton = nullptr;
 
     QTcpSocket *tcpSocket = nullptr;
+    QTcpServer *tcpServer = nullptr;
     
     QDataStream in;
-    QDataStream out;
+    //QDataStream out;
     
     QString currentData;
     
+    Ball b;
     QVector<QString> allWalls;
+    QString newBall;
     
     QNetworkSession *networkSession = nullptr;
     

@@ -1,5 +1,7 @@
 #include "client.h"
 
+bool firsttime = true;
+
 Client::Client(QWidget *parent) : 
     QDialog(new QDialog),
     hostCombo(new QComboBox),
@@ -7,6 +9,7 @@ Client::Client(QWidget *parent) :
     getWallsButton(new QPushButton(tr("Get walls"))),
     tcpSocket(new QTcpSocket(this))
 {
+    tcpServer = new QTcpServer(this);        
     hostCombo->setEditable(true);
     QString name = QHostInfo::localHostName();
     if (!name.isEmpty()) {
@@ -114,23 +117,52 @@ Client::Client(QWidget *parent) :
 
 
 void Client::requestWalls(){
+    qDebug() << "req walls called";
     getWallsButton->setEnabled(true);
+    
+    QString ipAddress;
+    QList<QHostAddress> ipAddressesList = QNetworkInterface::allAddresses();
+    for (int i = 0; i < ipAddressesList.size(); i++){
+        if(ipAddressesList.at(i) != QHostAddress::LocalHost &&
+                ipAddressesList.at(i).toIPv4Address()){
+            ipAddress = ipAddressesList.at(i).toString();
+            break;
+        }
+    }
+    
+    if (ipAddress.isEmpty())
+        ipAddress = QHostAddress(QHostAddress::LocalHost).toString();
+    
+    tcpServer->listen(QHostAddress(ipAddress));
+    qDebug() << tcpServer->isListening();
+    
+    connect(tcpServer, SIGNAL(newConnection()), this, SLOT(readBall()));
+    
     tcpSocket->abort();
     tcpSocket->connectToHost(hostCombo->currentText(),
                              portLineEdit->text().toInt());
+    
+    QByteArray block;
+    QDataStream out(&block, QIODevice::WriteOnly);
+    out.setVersion(QDataStream::Qt_4_0);
+    
+    QString data = ipAddress + ":" + QString::number(tcpServer->serverPort());
+    
+    out << data;
+    
+    qDebug() << "address sending to server " << data;
+    qDebug() << tcpSocket->write(block);
+    qDebug() << "status after walls " << tcpSocket->state();
+    
 }
 
 void Client::readData(){
+    qDebug() << "readdata called";
+    in.setDevice(tcpSocket);
     in.startTransaction();
     QString data;
     
     in >> data;
-    qDebug() << data;
-    
-    if(data.split(".").at(0) == "b"){
-        
-        QTimer::singleShot(100, this, SLOT(transBall()));
-    }
     if(data.split(".").at(0) == "w"){
         QString wall = data;
         
@@ -138,8 +170,8 @@ void Client::readData(){
         wall.remove(0,4);
         for (int i = 0; i < amount; i++)
             allWalls.push_back(wall.split("=")[i]);
-        for (int i = 0; i < amount; i++)
-            qDebug() << allWalls[i];   
+//        for (int i = 0; i < amount; i++)
+//            qDebug() << allWalls[i];   
         QTimer::singleShot(100, this, SLOT(transWall()));
     }
     
@@ -149,6 +181,7 @@ void Client::readData(){
     currentData = data;
     statusLabel->setText(currentData);
     getWallsButton->setEnabled(true);
+    tcpSocket->disconnectFromHost();
 }
 
 void Client::displayError(QAbstractSocket::SocketError socketError)
@@ -215,7 +248,9 @@ void Client::transBall(){
 
 
 
-void Client::sendBall(Ball b){
+void Client::sendBall(){
+    qDebug() << "sendBall called";
+    tcpSocket->abort();
     tcpSocket->connectToHost(hostCombo->currentText(),
                              portLineEdit->text().toInt());
     
@@ -225,17 +260,35 @@ void Client::sendBall(Ball b){
     
     QString ball = QString::number(b.GetCoord().x()) + ":" +
                    QString::number(b.GetCoord().y()) + ":" + 
+                   QString::number(b.getRadius())    + ":" + 
                    QString::number(b.getSpeed().x()) + ":" +
                    QString::number(b.getSpeed().y()) + ":" + 
                    QString::number(b.getAccel().x()) + ":" +
                    QString::number(b.getAccel().y());
+    //qDebug() << ball;
+    
     out << ball;
     
-    //connect(serverConnection, SIGNAL(disconnected()),
-    //        serverConnection, SLOT(deleteLater()));
-    
     tcpSocket->write(block);
+    tcpSocket->disconnectFromHost();
+}
+
+void Client::readBall(){
+    qDebug() << "read ball called"<< tcpServer->hasPendingConnections();
+    QTcpSocket* sock = tcpServer->nextPendingConnection();
+    connect(sock, SIGNAL(readyRead()), this, SLOT(finalReadBall()));
 }
 
 
-
+void Client::finalReadBall(){
+    qDebug() << "finally reading the ball";
+    QTcpSocket* sock = (QTcpSocket*)sender();
+    QString data;
+    in.setDevice(sock);
+    in >> data;
+    
+    qDebug() << "IVE GOT A NEW BALL" << data;
+    data.remove(0,2);
+    newBall = data;
+    QTimer::singleShot(100, this, SLOT(transBall()));    
+}

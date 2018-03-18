@@ -1,5 +1,4 @@
 #include "mainwindow.h"
-#include "ui_mainwindow.h"
 
 #include <QGridLayout>
 #include <QTimer>
@@ -33,6 +32,7 @@ MainWindow::MainWindow(QWidget *parent) :
     timer->start(15);
    
     connect(client, SIGNAL(got_wall()), this, SLOT(initWalls()));        
+    connect(client, SIGNAL(got_ball()), this, SLOT(addBallToPlace()));
 }
 
 MainWindow::~MainWindow()
@@ -57,10 +57,18 @@ void MainWindow::keyPressEvent(QKeyEvent *event){
 }
 
 void MainWindow::initWalls(){
-    
-    //QTimer::singleShot(100, client, SLOT(sendBall(Ball())));
-    client->close();
-    
     QVector<QString> w = client->throwWalls();
     helper.setWalls(w);
+    connect(&helper, SIGNAL(createdBall()), this, SLOT(sendingBall()));
+}
+
+
+void MainWindow::sendingBall(){
+    client->setBall(*helper.getBall());
+    QTimer::singleShot(100, client, SLOT(sendBall()));
+}
+
+void MainWindow::addBallToPlace(){
+    QString b = client->getNewBall();
+    helper.addExternBall(b);
 }

@@ -17,6 +17,8 @@ class MainWindow : public QMainWindow
 
 private slots:
     void initWalls();
+    void sendingBall();
+    void addBallToPlace();
     
 public:
     explicit MainWindow(QWidget *parent = 0);

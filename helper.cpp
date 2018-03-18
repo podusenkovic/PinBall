@@ -15,7 +15,8 @@ extern bool PawsMoving;
 
 bool needDraw = false;
 
-Helper::Helper()
+Helper::Helper():
+    QObject(nullptr)
 {
     srand(time(NULL));
 
@@ -46,7 +47,6 @@ void Helper::paint(QPainter *painter, QPaintEvent *event, int elapsed)
     painter->fillRect(QRect(QPoint(), winSize), background);
 
     painter->save();
-    painter->setBrush(circleBrush);
     painter->setPen(QPen(Qt::black,1));
     painter->setFont(textFont);
     
@@ -54,8 +54,24 @@ void Helper::paint(QPainter *painter, QPaintEvent *event, int elapsed)
         mReleased = false;
         needDraw = true;                
         ball = new Ball(startPoint, 20, startSpeed, QPoint(0,1));
+        emit createdBall();
     }
-    if(needDraw){      
+    if(needDraw){
+        for (int i = 0; i < externBalls.size(); i++)
+        {
+            painter->setBrush(QBrush(QColor(0, 0, 0)));
+            externBalls[i]->updateAccel();
+            externBalls[i]->updateCoord();
+            externBalls[i]->updateSpeed();
+            if(wall != nullptr){
+                for(int j = 0; j < numWall; j++)
+                    externBalls[i]->checkBounds(wall[j].line());
+            }
+            for(int j = 0; j < 2; j++)
+                externBalls[i]->checkBounds(paws[j].line());
+            painter->drawEllipse(externBalls[i]->rect());
+        }
+        painter->setBrush(circleBrush);
         ball->updateAccel();
         ball->updateCoord();
         ball->updateSpeed();
@@ -99,3 +115,35 @@ void Helper::setWalls(QVector<QString> walls){
                               wallCoord[3].toInt()));
     }
 }
+
+void Helper::addExternBall(QString b){
+    QStringList list = b.split(":");
+    Ball *ball = new Ball(QPoint(list[0].toInt(), list[1].toInt()),
+                          list[2].toInt(),
+                          QPoint(list[3].toInt(), list[4].toInt()),
+                          QPoint(list[5].toInt(), list[6].toInt()));
+    externBalls.push_back(ball);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
