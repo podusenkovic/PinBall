@@ -28,7 +28,8 @@ private:
     QPen textPen;
     Ball *ball = nullptr;
     QVector<Ball*> externBalls;
-    
+    QVector<int> ballsIDs;
+    QVector<QColor> ballsColors;
     Wall *wall = nullptr;
     Wall *paws;
     int numWall;

@@ -9,6 +9,9 @@ Client::Client(QWidget *parent) :
     getWallsButton(new QPushButton(tr("Get walls"))),
     tcpSocket(new QTcpSocket(this))
 {
+    
+    srand(QTime::currentTime().msec() + QTime::currentTime().second());
+    id = rand()%999 + 1;
     tcpServer = new QTcpServer(this);        
     hostCombo->setEditable(true);
     QString name = QHostInfo::localHostName();
@@ -146,11 +149,11 @@ void Client::requestWalls(){
     QDataStream out(&block, QIODevice::WriteOnly);
     out.setVersion(QDataStream::Qt_4_0);
     
-    QString data = ipAddress + ":" + QString::number(tcpServer->serverPort());
+    QString data = QString::number(id) + ":" +ipAddress + ":" + QString::number(tcpServer->serverPort());
     
     out << data;
     
-    qDebug() << "address sending to server " << data;
+    qDebug() << "sending to server this " << data;
     qDebug() << tcpSocket->write(block);
     qDebug() << "status after walls " << tcpSocket->state();
     
@@ -258,16 +261,19 @@ void Client::sendBall(){
     QDataStream out(&block, QIODevice::WriteOnly);
     out.setVersion(QDataStream::Qt_4_0);
     
-    QString ball = QString::number(b.GetCoord().x()) + ":" +
-                   QString::number(b.GetCoord().y()) + ":" + 
-                   QString::number(b.getRadius())    + ":" + 
-                   QString::number(b.getSpeed().x()) + ":" +
-                   QString::number(b.getSpeed().y()) + ":" + 
-                   QString::number(b.getAccel().x()) + ":" +
+    QString ball = "b." + 
+                   QString::number(b.GetCoord().x()) + "." +
+                   QString::number(b.GetCoord().y()) + "." + 
+                   QString::number(b.getRadius())    + "." + 
+                   QString::number(b.getSpeed().x()) + "." +
+                   QString::number(b.getSpeed().y()) + "." + 
+                   QString::number(b.getAccel().x()) + "." +
                    QString::number(b.getAccel().y());
     //qDebug() << ball;
     
-    out << ball;
+    QString data = QString::number(id) + ":" + ball;
+    
+    out << data;
     
     tcpSocket->write(block);
     tcpSocket->disconnectFromHost();
@@ -290,5 +296,5 @@ void Client::finalReadBall(){
     qDebug() << "IVE GOT A NEW BALL" << data;
     data.remove(0,2);
     newBall = data;
-    QTimer::singleShot(100, this, SLOT(transBall()));    
+    QTimer::singleShot(3, this, SLOT(transBall()));
 }

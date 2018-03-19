@@ -71,6 +71,8 @@ private:
     
     QNetworkSession *networkSession = nullptr;
     
+    int id;
+    
 };
 
 #endif // CLIENT_H  

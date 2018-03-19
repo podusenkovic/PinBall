@@ -7,7 +7,7 @@
 #include <QDebug>
 #include <QVector>
 
-QSize winSize = QSize(1000,700);
+QSize winSize = QSize(500, 500);
 
 QPoint startPoint;  
 QPoint startSpeed;
@@ -17,10 +17,7 @@ bool PawsMoving = false;
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent)
-{
-    client = new Client;
-    client->show();
-    
+{    
     this->move(100,10);
     Widget *drawPlace = new Widget(&helper, this);
     setFixedSize(winSize);
@@ -30,7 +27,11 @@ MainWindow::MainWindow(QWidget *parent) :
     QTimer *timer = new QTimer(this);
     connect(timer, SIGNAL(timeout()), drawPlace, SLOT(animate()));
     timer->start(15);
-   
+ 
+    client = new Client;
+    client->show();
+    client->move(100, 550);
+    
     connect(client, SIGNAL(got_wall()), this, SLOT(initWalls()));        
     connect(client, SIGNAL(got_ball()), this, SLOT(addBallToPlace()));
 }
@@ -65,10 +66,11 @@ void MainWindow::initWalls(){
 
 void MainWindow::sendingBall(){
     client->setBall(*helper.getBall());
-    QTimer::singleShot(100, client, SLOT(sendBall()));
+    QTimer::singleShot(3, client, SLOT(sendBall()));
 }
 
 void MainWindow::addBallToPlace(){
     QString b = client->getNewBall();
+    qDebug() << "adding ball to play" << b;
     helper.addExternBall(b);
 }

@@ -59,7 +59,7 @@ void Helper::paint(QPainter *painter, QPaintEvent *event, int elapsed)
     if(needDraw){
         for (int i = 0; i < externBalls.size(); i++)
         {
-            painter->setBrush(QBrush(QColor(0, 0, 0)));
+            painter->setBrush(QBrush(ballsColors[i]));
             externBalls[i]->updateAccel();
             externBalls[i]->updateCoord();
             externBalls[i]->updateSpeed();
@@ -71,17 +71,19 @@ void Helper::paint(QPainter *painter, QPaintEvent *event, int elapsed)
                 externBalls[i]->checkBounds(paws[j].line());
             painter->drawEllipse(externBalls[i]->rect());
         }
-        painter->setBrush(circleBrush);
-        ball->updateAccel();
-        ball->updateCoord();
-        ball->updateSpeed();
-        if(wall != nullptr){
-            for(int i = 0; i < numWall; i++)
-                ball->checkBounds(wall[i].line());
+        if(ball != nullptr){
+            painter->setBrush(circleBrush);
+            ball->updateAccel();
+            ball->updateCoord();
+            ball->updateSpeed();
+            if(wall != nullptr){
+                for(int i = 0; i < numWall; i++)
+                    ball->checkBounds(wall[i].line());
+            }
+            for(int i = 0; i < 2; i++)
+                ball->checkBounds(paws[i].line());
+            painter->drawEllipse(ball->rect());
         }
-        for(int i = 0; i < 2; i++)
-            ball->checkBounds(paws[i].line());
-        painter->drawEllipse(ball->rect());
     }
     painter->setPen(QPen(QColor(59, 66, 76),4));
     if(wall != nullptr){
@@ -117,12 +119,29 @@ void Helper::setWalls(QVector<QString> walls){
 }
 
 void Helper::addExternBall(QString b){
-    QStringList list = b.split(":");
-    Ball *ball = new Ball(QPoint(list[0].toInt(), list[1].toInt()),
-                          list[2].toInt(),
-                          QPoint(list[3].toInt(), list[4].toInt()),
-                          QPoint(list[5].toInt(), list[6].toInt()));
-    externBalls.push_back(ball);
+    int id = b.split(":")[0].toInt();
+    qDebug() << "creating ball";
+    QStringList list = b.split(":")[1].split(".");
+    Ball *ball = new Ball(QPoint(list[1].toInt(), list[2].toInt()),
+                          list[3].toInt(),
+                          QPoint(list[4].toInt(), list[5].toInt()),
+                          QPoint(list[6].toInt(), list[7].toInt()));
+    
+    if (!ballsIDs.contains(id)){
+        ballsIDs.push_back(id);
+        externBalls.push_back(ball);
+        ballsColors.push_back(QColor(rand()%255,
+                                     rand()%255,
+                                     rand()%255));
+        qDebug() << "not contains";
+        needDraw = true;
+    }
+    else {
+        int index = ballsIDs.indexOf(id);
+        delete externBalls[index];
+        externBalls[index] = ball;
+        qDebug() << "contains";
+    }
 }
 
 
