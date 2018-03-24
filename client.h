@@ -36,10 +36,11 @@ public:
 signals:
     void got_ball();
     void got_wall();
+    void move_paws();
     
 public slots:
     void sendBall();
-    
+    void movePaws();
 private slots:
     void requestWalls();
     void readData();
@@ -48,6 +49,7 @@ private slots:
     void sessionOpened();
     void transWall();
     void transBall();
+    void transPaws();
     void readBall();
     void finalReadBall();
     //void sendIP();

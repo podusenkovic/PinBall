@@ -1,3 +1,4 @@
+#define DELAY 0
 #include "client.h"
 
 bool firsttime = true;
@@ -168,7 +169,6 @@ void Client::readData(){
     in >> data;
     if(data.split(".").at(0) == "w"){
         QString wall = data;
-        
         int amount = wall.split(".").at(1).toInt(); 
         wall.remove(0,4);
         for (int i = 0; i < amount; i++)
@@ -249,6 +249,10 @@ void Client::transBall(){
     emit got_ball();    
 }
 
+void Client::transPaws(){
+    emit move_paws();
+}
+
 
 
 void Client::sendBall(){
@@ -292,9 +296,29 @@ void Client::finalReadBall(){
     QString data;
     in.setDevice(sock);
     in >> data;
-    
+    //if()
     qDebug() << "IVE GOT A NEW BALL" << data;
-    data.remove(0,2);
     newBall = data;
-    QTimer::singleShot(3, this, SLOT(transBall()));
+    if (data.split(":")[1] == "paws")
+        QTimer::singleShot(0, this, SLOT(transPaws()));
+    else QTimer::singleShot(DELAY, this, SLOT(transBall()));
+}
+
+
+void Client::movePaws(){
+    tcpSocket->abort();
+    tcpSocket->connectToHost(hostCombo->currentText(),
+                             portLineEdit->text().toInt());
+    QByteArray block;
+    QDataStream out(&block, QIODevice::WriteOnly);
+    out.setVersion(QDataStream::Qt_4_0);
+    
+    
+    QString data = QString::number(id) + ":" + "paws";
+    
+    out << data;
+    
+    tcpSocket->write(block);
+    tcpSocket->disconnectFromHost();
+    
 }

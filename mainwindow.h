@@ -19,7 +19,7 @@ private slots:
     void initWalls();
     void sendingBall();
     void addBallToPlace();
-    
+    void movePaws();
 public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();

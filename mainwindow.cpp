@@ -1,3 +1,4 @@
+#define DELAY 0
 #include "mainwindow.h"
 
 #include <QGridLayout>
@@ -34,6 +35,7 @@ MainWindow::MainWindow(QWidget *parent) :
     
     connect(client, SIGNAL(got_wall()), this, SLOT(initWalls()));        
     connect(client, SIGNAL(got_ball()), this, SLOT(addBallToPlace()));
+    connect(client, SIGNAL(move_paws()), this, SLOT(movePaws()));
 }
 
 MainWindow::~MainWindow()
@@ -53,8 +55,10 @@ void MainWindow::mouseReleaseEvent(QMouseEvent *event){
 
 
 void MainWindow::keyPressEvent(QKeyEvent *event){
-    if (event->key() == Qt::Key_Space)
+    if (event->key() == Qt::Key_Space){
         PawsMoving = true;
+        QTimer::singleShot(DELAY, client, SLOT(movePaws()));
+    }
 }
 
 void MainWindow::initWalls(){
@@ -66,11 +70,15 @@ void MainWindow::initWalls(){
 
 void MainWindow::sendingBall(){
     client->setBall(*helper.getBall());
-    QTimer::singleShot(3, client, SLOT(sendBall()));
+    QTimer::singleShot(DELAY, client, SLOT(sendBall()));
 }
 
 void MainWindow::addBallToPlace(){
     QString b = client->getNewBall();
     qDebug() << "adding ball to play" << b;
     helper.addExternBall(b);
+}
+
+void MainWindow::movePaws(){
+    PawsMoving = true;
 }
