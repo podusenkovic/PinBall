@@ -14,7 +14,34 @@ class Wall
     QPoint p1,p2;
     QPoint center;
 public:
-    friend bool moveblyat(Wall *a, Wall *b);
+    friend bool moveblyat(Wall *a, Wall *b){
+        static int delta = 0;
+        static int sum = 0;
+    
+        static bool up = true;
+       
+        if (sum <= -52)
+            up = !up;
+        
+        if (up)
+            delta = -2;
+        else
+            delta = 2;
+        
+        sum += delta;
+        a->p2 = QPoint(a->p2.x(), 
+                       a->p2.y() + delta);
+        b->p1 = QPoint(b->p1.x(), 
+                       b->p1.y() + delta);
+        
+            if (sum >= 0){
+            delta = 0;
+            sum = 0;
+            up = true;
+            return false;
+    }
+    return true;    
+}
     Wall(QPoint p1 = QPoint(0,0), QPoint p2 = QPoint(0,0)){
         this->p1 = p1;
         this->p2 = p2;
@@ -87,35 +114,6 @@ public:
         return true;
     }
 };
-
-static bool moveblyat(Wall *a, Wall *b){
-    static int delta = 0;
-    static int sum = 0;
-    
-    static bool up = true;
-   
-    if (sum <= -52)
-        up = !up;
-    
-    if (up)
-        delta = -2;
-    else
-        delta = 2;
-    
-    sum += delta;
-    a->p2 = QPoint(a->p2.x(), 
-                   a->p2.y() + delta);
-    b->p1 = QPoint(b->p1.x(), 
-                   b->p1.y() + delta);
-    
-    if (sum >= 0){
-        delta = 0;
-        sum = 0;
-        up = true;
-        return false;
-    }
-    return true;    
-}
 
 
 
