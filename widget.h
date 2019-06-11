@@ -4,6 +4,8 @@
 #include <QWidget>
 #include <QPainter>
 
+#include <math.h>
+
 class Helper;
 
 class Widget : public QWidget
