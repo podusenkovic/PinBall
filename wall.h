@@ -8,6 +8,7 @@
 #include <QLine>
 #include <QTimer>
 
+#include <math.h>
 
 class Wall
 {
