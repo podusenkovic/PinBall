@@ -8,6 +8,7 @@
 #include <QLine>
 #include <QDebug>
 
+#include <math.h>
 
 static double max(double a, double b){
     if (a > b) 
